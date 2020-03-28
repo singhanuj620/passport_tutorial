@@ -2,10 +2,20 @@ const 	express		=	require('express'),
 		ejs			=	require('ejs'),
 		app			=	express();
 
+app.set('view engine','ejs');
+app.use(express.static(__dirname + '/public'));
 
 
-app.get('/',(req,res) => {
-	res.send('Started Fine');
+app.get("/" , (req,res) => {
+	res.redirect("/login");
+});
+
+app.get('/login',(req,res) => {
+	res.render('login');
+});
+
+app.get('/register',(req,res) => {
+	res.render('register');
 });
 
 
