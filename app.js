@@ -1,20 +1,31 @@
-if(process.env.NODE_ENV !== 'production'){
-	require('dotenv').config()
-}
 
 
-const 	express		=	require('express'),
-		ejs			=	require('ejs'),
-		bcrypt		=	require('bcrypt'),
-		passport 	=	require('passport'),
-		session 	=	require('express-session'),
-		flash 		=	require('express-flash'),
+const 	express			=	require('express'),
+		MongoClient		=	require('mongodb').MongoClient,
+		ejs				=	require('ejs'),
+		bcrypt			=	require('bcrypt'),
+		passport 		=	require('passport'),
+		session 		=	require('express-session'),
+		flash 			=	require('express-flash'),
 		methodOverride 	=	require('method-override'),
-		app			=	express();
+		app				=	express();
 
+
+let url = "mongodb://singhanuj620:1Ab23cd45e@ds037451.mlab.com:37451/passporttest";
+let dbo;
+MongoClient.connect(url,{useUnifiedTopology: true}, function(err, db) {
+	  	if (err) throw err;
+	  	console.log("Database created!");
+	  	dbo = db.db("passporttest");
+		dbo.createCollection("test", function(err, res) {
+			if (err) throw err;
+	    	console.log("Collection created with name");
+		});
+	});
+
+const initializePassport 	=	require("./passport-config");
 
 const users=[]
-const initializePassport 	=	require("./passport-config");
 
 
 initializePassport(
@@ -23,13 +34,14 @@ initializePassport(
 	id => users.find(user => user.id === id )
 );
 
+// dbo.collection("uploadphotos").find()
 
 app.set('view engine','ejs');
 app.use(express.static(__dirname + '/public'));
 app.use(express.urlencoded({extended:false}));
 app.use(flash());
 app.use(session({
-	secret : process.env.SESSION_SECRET,
+	secret : 'secret',
 	resave : false,
 	saveUninitialized : false
 }));
@@ -39,6 +51,7 @@ app.use(methodOverride('_method'));
 
 
 app.get("/" ,checkAuthenticated, (req,res) => {
+	console.log(users.find(user => user.email === email ));
 	res.render('index', {name : req.user.name});
 });
 
@@ -54,6 +67,13 @@ app.get('/register',checkNotAuthenticated,(req,res) => {
 app.post("/register",checkNotAuthenticated, async (req,res) => {
 	try{
 		const hashedPassword = await bcrypt.hash(req.body.password,10);
+		let data={
+			id: Date.now().toString(),
+			name: req.body.name,
+			email: req.body.email,
+			password: hashedPassword
+		}
+		dbo.collection("test").insertOne(data);
 		users.push({
 			id: Date.now().toString(),
 			name: req.body.name,
@@ -64,7 +84,6 @@ app.post("/register",checkNotAuthenticated, async (req,res) => {
 	}catch{
 		res.redirect("/register");
 	}
-	// console.log(users);
 });
 
 app.post("/login" ,checkNotAuthenticated, passport.authenticate('local', {
