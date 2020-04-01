@@ -1,5 +1,3 @@
-
-
 const 	express			=	require('express'),
 		MongoClient		=	require('mongodb').MongoClient,
 		ejs				=	require('ejs'),
@@ -19,19 +17,27 @@ MongoClient.connect(url,{useUnifiedTopology: true}, function(err, db) {
 	  	dbo = db.db("passporttest");
 		dbo.createCollection("test", function(err, res) {
 			if (err) throw err;
-	    	console.log("Collection created with name");
+	    	console.log("Collection created with name : test ");
 		});
 	});
 
 const initializePassport 	=	require("./passport-config");
 
-const users=[]
+const userEmail = async (email) => {
+	let temp = await dbo.collection("test").find({email:email}).toArray();
+	return temp[0];
+}
+
+const userId = async (id) => {
+	let temp = await dbo.collection("test").find({id:id}).toArray();
+	return temp[0];
+}
 
 
 initializePassport(
 	passport,
-	email => users.find(user => user.email === email ),
-	id => users.find(user => user.id === id )
+	email => userEmail(email),
+	id => userId(id)
 );
 
 // dbo.collection("uploadphotos").find()
@@ -51,7 +57,6 @@ app.use(methodOverride('_method'));
 
 
 app.get("/" ,checkAuthenticated, (req,res) => {
-	console.log(users.find(user => user.email === email ));
 	res.render('index', {name : req.user.name});
 });
 
@@ -74,12 +79,12 @@ app.post("/register",checkNotAuthenticated, async (req,res) => {
 			password: hashedPassword
 		}
 		dbo.collection("test").insertOne(data);
-		users.push({
-			id: Date.now().toString(),
-			name: req.body.name,
-			email: req.body.email,
-			password: hashedPassword
-		});
+		// users.push({
+		// 	id: Date.now().toString(),
+		// 	name: req.body.name,
+		// 	email: req.body.email,
+		// 	password: hashedPassword
+		// });
 		res.redirect("/login");
 	}catch{
 		res.redirect("/register");
@@ -114,7 +119,10 @@ function checkNotAuthenticated(req,res,next) {
 	next();
 }
 
-
+app.get("/test",async (req,res) => {
+	let flag = await userEmail('w@w');
+	res.send(flag);
+});
 
 const port = process.env.PORT || 3000;
 app.listen(port,() => {
