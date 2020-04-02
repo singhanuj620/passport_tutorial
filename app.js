@@ -6,10 +6,11 @@ const 	express			=	require('express'),
 		session 		=	require('express-session'),
 		flash 			=	require('express-flash'),
 		methodOverride 	=	require('method-override'),
+		dotenv			=	require("dotenv"),
 		app				=	express();
 
-
-let url = "mongodb://singhanuj620:1Ab23cd45e@ds037451.mlab.com:37451/passporttest";
+dotenv.config();
+let url = process.env.DB_URL;
 let dbo;
 MongoClient.connect(url,{useUnifiedTopology: true}, function(err, db) {
 	  	if (err) throw err;
