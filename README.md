@@ -1,7 +1,8 @@
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)](https://bitbucket.org/lbesson/ansi-colors)
+
 # passport_tutorial
 This application was made in process to learn passport-local strategy.
 
-**DEMO** [Website](https://testpassport.herokuapp.com/)
 
 ## To use this Project, do the following :
 
@@ -12,4 +13,4 @@ This application was made in process to learn passport-local strategy.
 4. Run **npm run dev** for starting the project  
 5. Open in browser in https://localhost:<port>  
 
-# To contact me, reachout at [Anuj Singh](https://singhanuj620.github.io/portfolio)
+### To contact me, reachout at [Anuj Singh](https://anujportfolio.herokuapp.com/)
